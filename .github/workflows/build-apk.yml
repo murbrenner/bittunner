@@ -1,0 +1,92 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Permite disparar manualmente
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev
+        sudo apt-get install -y autoconf libtool pkg-config libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+        sudo apt-get install -y openjdk-11-jdk
+    
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install kivy[base]
+        pip install buildozer
+        pip install cython
+    
+    - name: Install buildozer dependencies
+      run: |
+        sudo apt-get install -y automake libtool libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+        sudo apt-get install -y libopenjp2-7 libtiff5 liblcms2-2 libwebp5 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0
+    
+    - name: Initialize buildozer
+      run: |
+        buildozer init
+      continue-on-error: true
+    
+    - name: Create buildozer.spec
+      run: |
+        cat > buildozer.spec << 'EOF'
+        [app]
+        title = BitTuner
+        package.name = bittuner
+        package.domain = org.bittuner
+        source.dir = .
+        source.include_exts = py,png,jpg,kv,atlas,txt
+        version = 1.0.0
+        requirements = python3,kivy,yt-dlp,certifi,pyjnius,android
+        android.permissions = INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE
+        android.api = 33
+        android.minapi = 21
+        android.ndk = 25b
+        android.sdk = 33
+        android.entrypoint = org.kivy.android.PythonActivity
+        android.archs = arm64-v8a,armeabi-v7a
+        android.fullscreen = False
+        
+        [buildozer]
+        log_level = 2
+        EOF
+    
+    - name: Build APK
+      run: |
+        buildozer android debug
+      continue-on-error: true
+    
+    - name: Upload APK artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: bittuner-apk
+        path: bin/*.apk
+        retention-days: 30
+    
+    - name: Create Release
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: softprops/action-gh-release@v1
+      with:
+        files: bin/*.apk
+        draft: false
+        prerelease: true
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
