@@ -60,6 +60,7 @@ jobs:
         android.minapi = 21
         android.ndk = 28c
         android.sdk = 30
+        android.build_tools = 30.0.3
         android.entrypoint = org.kivy.android.PythonActivity
         android.archs = arm64-v8a,armeabi-v7a
         android.fullscreen = False
