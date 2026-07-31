@@ -2,6 +2,18 @@
 
 Downloader de vídeos e áudios com tema retro gaming para Android.
 
+## APK Automático
+
+Este repositório usa GitHub Actions para fazer o build automático do APK.
+
+## Como Baixar o APK
+
+1. Acesse a aba **Actions** neste repositório
+2. Clique no workflow mais recente
+3. Role até **Artifacts**
+4. Baixe o arquivo `bittuner-apk`
+5. Extraia e instale no Android
+
 ## Recursos
 
 - **Download de Vídeos**: MP4, MKV, WEBM, AVI, MOV (vídeo + áudio mesclados)
@@ -10,35 +22,6 @@ Downloader de vídeos e áudios com tema retro gaming para Android.
 - **Playlists**: Suporte completo para playlists
 - **Plataformas**: YouTube, Instagram, TikTok, Twitter e mais
 - **Tema Retro**: Interface com estilo 8-bit retro gaming
-
-## Versão Android
-
-Este é o projeto para gerar o APK Android usando Kivy + Buildozer.
-
-## Como Gerar o APK
-
-### Pré-requisitos
-
-- Python 3.8+
-- JDK 11+
-- Kivy e Buildozer instalados
-
-### Instalação
-
-```bash
-pip install -r requirements.txt
-```
-
-### Build do APK
-
-```bash
-buildozer android debug
-```
-
-Para release:
-```bash
-buildozer android release
-```
 
 ## Uso
 
@@ -58,6 +41,10 @@ buildozer android release
 
 ### Transcrição
 - TXT (usando Whisper)
+
+## Build Automático
+
+O APK é gerado automaticamente pelo GitHub Actions sempre que há um push no repositório. Veja o tutorial completo em `GITHUB_ACTIONS_TUTORIAL.md`.
 
 ## Licença
 
