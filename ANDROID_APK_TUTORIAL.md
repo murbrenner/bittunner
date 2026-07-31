@@ -1,234 +1,203 @@
-# Tutorial: Gerar APK Android para BitTuner
+# Tutorial: Build APK Automático com GitHub Actions
 
-Este tutorial explica como converter o BitTuner em um aplicativo Android usando **Kivy + Buildozer**.
+Este tutorial explica como configurar o GitHub para fazer o build automático do APK Android do BitTuner.
 
-## Por que Kivy + Buildozer?
+## Por que GitHub Actions?
 
-O app atual usa **Tkinter**, que não roda em Android. **Kivy** é a melhor opção porque:
-- Framework maduro e testado para mobile
-- Suporte nativo para Android e iOS
-- Buildozer automatiza todo o processo de build
-- Widgets customizáveis e responsivos
-- Comunidade ativa e documentação extensa
+- **Gratuito** para repositórios públicos
+- **Automático** - build acontece quando você faz push
+- **Sem WSL** - roda em Linux na nuvem
+- **Download fácil** - APK disponível como artefato
+- **Histórico** - mantém versões anteriores
 
-## Pré-requisitos
+## Passo 1: Preparar o Repositório
 
-### 1. Instalar Python 3.8+
-```bash
-python --version
+### 1.1 Estrutura do Repositório
+
+Seu repositório deve ter esta estrutura:
+
+```
+bittuner/
+├── app_kivy.py              # App Kivy
+├── requirements.txt        # Dependências
+├── README.md              # Documentação
+├── .github/
+│   └── workflows/
+│       └── build-apk.yml  # Workflow GitHub Actions
+└── .gitignore             # Arquivos ignorados
 ```
 
-### 2. Instalar JDK 11+
-```bash
-java -version
+### 1.2 Arquivos Necessários
+
+Todos os arquivos já estão na pasta `bittuner-github` na sua Área de Trabalho.
+
+## Passo 2: Criar Repositório no GitHub
+
+1. Acesse https://github.com/new
+2. Repository name: `bittuner`
+3. Marque **Public** (necessário para GitHub Actions gratuito)
+4. **NÃO** marque "Add a README file"
+5. Clique em **Create repository**
+
+## Passo 3: Upload dos Arquivos pela Web
+
+### 3.1 Criar app_kivy.py
+
+1. Clique em **"creating a new file"**
+2. Nome: `app_kivy.py`
+3. Cole o conteúdo do arquivo: `C:\Users\Murilo Brenner\Desktop\bittuner-github\app_kivy.py`
+4. Commit: "Add app_kivy.py"
+
+### 3.2 Criar requirements.txt
+
+1. Clique em **"Add file"** → **"Create new file"**
+2. Nome: `requirements.txt`
+3. Conteúdo:
+
+```
+yt-dlp>=2024.1.1
+faster-whisper>=1.0.0
+certifi>=2023.7.22
+kivy[base]>=2.1.0
+buildozer>=1.4.0
+cython>=3.0.0
+pyjnius>=1.6.1
 ```
 
-### 3. Instalar dependências do sistema
+4. Commit: "Add requirements.txt"
 
-#### Linux (Ubuntu/Debian)
-```bash
-sudo apt update
-sudo apt install -y build-essential git ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev
-sudo apt install -y autoconf libtool pkg-config libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
-```
+### 3.3 Criar .github/workflows/build-apk.yml
 
-#### Windows
-- Instale: https://www.python.org/downloads/
-- Instale: https://adoptium.net/ (JDK 11)
-- Instale: https://git-scm.com/download/win
+1. Clique em **"Add file"** → **"Create new file"**
+2. Nome: `.github/workflows/build-apk.yml`
+3. Cole o conteúdo do arquivo: `C:\Users\Murilo Brenner\Desktop\bittuner-github\.github\workflows\build-apk.yml`
+4. Commit: "Add GitHub Actions workflow"
 
-### 4. Instalar Kivy e Buildozer
-```bash
-pip install kivy[base]
-pip install buildozer
-pip install cython
-```
+### 3.4 Criar README.md
 
-## Passo 1: Usar a versão Kivy do App
+1. Clique em **"Add file"** → **"Create new file"**
+2. Nome: `README.md`
+3. Conteúdo:
 
-Já criei o arquivo `app_kivy.py` que é a versão do BitTuner usando Kivy. Este arquivo contém toda a lógica do app adaptada para Kivy.
+```markdown
+# BitTuner - YouTube/Instagram Downloader (Android APK)
 
-### Testar no Desktop
-```bash
-python app_kivy.py
-```
+Downloader de vídeos e áudios com tema retro gaming para Android.
 
-## Passo 2: Configurar o Buildozer
+## APK Automático
 
-### 2.1 Inicializar o Buildozer
-```bash
-cd youtube_playlist_downloader
-buildozer init
-```
+Este repositório usa GitHub Actions para fazer o build automático do APK.
 
-Isso cria o arquivo `buildozer.spec` com todas as configurações.
+## Como Baixar o APK
 
-### 2.2 Editar buildozer.spec
-
-Abra o arquivo `buildozer.spec` e ajuste as seguintes seções:
-
-```spec
-# Título do app
-title = BitTuner
-
-# Nome do pacote
-package.name = bittuner
-
-# Domínio (use seu domínio ou exemplo)
-package.domain = org.bittuner
-
-# Versão
-version = 1.0.0
-
-# Dependências Python
-requirements = python3,kivy,yt-dlp,certifi,pyjnius,android
-
-# Permissões Android
-android.permissions = INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE
-
-# Orientação (landscape/portrait)
-orientation = portrait
-
-# Ícone (opcional)
-icon.filename = assets/icon.png
-
-# Presplash (tela de loading)
-presplash.filename = assets/presplash.png
-```
-
-### 2.3 Adicionar FFmpeg ao APK
-
-O FFmpeg precisa ser incluído no APK. Crie a pasta `assets/` e coloque o binário FFmpeg para Android ARM64:
-
-```bash
-mkdir assets
-# Baixe FFmpeg para Android ARM64 de: https://github.com/BtbN/FFmpeg-Builds/releases
-# Coloque o arquivo ffmpeg em assets/ffmpeg
-```
-
-No `buildozer.spec`, adicione:
-```spec
-android.include_assets = assets/ffmpeg
-```
-
-## Passo 3: Build do APK
-
-### 3.1 Debug APK (mais rápido)
-```bash
-buildozer android debug
-```
-
-### 3.2 Release APK (otimizado para distribuição)
-```bash
-buildozer android release
-```
-
-### 3.3 Opções úteis
-```bash
-# Limpar cache e rebuild
-buildozer android clean
-buildozer android debug
-
-# Ver logs de erro
-buildozer android logcat
-
-# Deploy direto no dispositivo conectado via USB
-buildozer android deploy run
-```
-
-## Passo 4: Instalar no Android
-
-### Via USB
-1. Ative "Depuração USB" no celular
-2. Conecte via USB
-3. Execute:
-```bash
-buildozer android deploy run
-```
-
-### Via APK
-1. Transfira o `.apk` da pasta `bin/` para o celular
-2. Ative "Instalação de apps desconhecidos"
-3. Instale o APK
-
-## Passo 5: Ajustar Caminho do FFmpeg no Código
-
-No `app_kivy.py`, ajuste o caminho do FFmpeg para Android:
-
-```python
-import platform
-
-if platform.system() == "Android":
-    from jnius import autoclass
-    PythonActivity = autoclass('org.kivy.android.PythonActivity')
-    FFMPEG_PATH = os.path.join(PythonActivity.mActivity.getFilesDir().toString(), "ffmpeg")
-else:
-    # Windows/Linux
-    FFMPEG_PATH = r"C:\Users\Murilo Brenner\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-8.1.2-full_build\bin\ffmpeg.exe"
-```
-
-## Solução de Problemas
-
-### Erro: "command 'gcc' failed"
-```bash
-# Linux: Instale build-essential
-sudo apt install build-essential
-
-# Windows: Instale MinGW ou use WSL
-```
-
-### Erro: "SDK not found"
-Configure no `buildozer.spec`:
-```spec
-android.sdk_path = /caminho/para/Android/Sdk
-android.ndk_path = /caminho/para/Android/Sdk/ndk/25.2.9519653
-```
-
-### Erro: "JDK not found"
-```bash
-export JAVA_HOME=/caminho/para/jdk-11
-```
-
-### Build muito lento
-- Use `buildozer android debug` durante desenvolvimento
-- Cache do Buildozer acelera builds subsequentes
-
-### APK muito grande
-- Remova dependências desnecessárias do `buildozer.spec`
-- Use `--strip` para remover símbolos de debug
-
-### Erro de permissão no Android
-Adicione ao `buildozer.spec`:
-```spec
-android.permissions = INTERNET,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE
-```
+1. Acesse a aba **Actions** neste repositório
+2. Clique no workflow mais recente
+3. Role até **Artifacts**
+4. Baixe o arquivo `bittuner-apk`
+5. Extraia e instale no Android
 
 ## Recursos
 
-- Kivy Docs: https://kivy.org/doc/stable/
-- Buildozer Docs: https://buildozer.readthedocs.io/
-- Kivy Android: https://github.com/kivy/python-for-android
-- FFmpeg Android: https://github.com/BtbN/FFmpeg-Builds/releases
+- Download de Vídeos: MP4, MKV, WEBM, AVI, MOV
+- Download de Áudios: MP3, AAC, M4A, FLAC, WAV, OGG, OPUS
+- Suporte a YouTube, Instagram, TikTok e mais
+- Tema 8-bit retro gaming
 
-## Dicas Adicionais
+## Licença
 
-### Testar no Emulador
-```bash
-# Inicie o emulador Android Studio
-buildozer android deploy run
+MIT
 ```
 
-### Assinar o APK (Release)
-Para publicar na Play Store, você precisa assinar o APK:
-```spec
-# No buildozer.spec
-android.release_keystore = /caminho/para/keystore.jks
-android.release_keyalias = seu_alias
-android.release_keypassword = sua_senha
-android.release_keystore_password = sua_senha
+4. Commit: "Add README"
+
+### 3.5 Criar .gitignore
+
+1. Clique em **"Add file"** → **"Create new file"**
+2. Nome: `.gitignore`
+3. Conteúdo:
+
+```
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv
+*.log
+Downloads/
+bin/
+*.apk
+*.aab
+buildozer/
 ```
 
-### Atualizar o App
-- Aumente a versão no `buildozer.spec`
-- Rebuild com `buildozer android release`
-- O novo APK substituirá o anterior
+4. Commit: "Add gitignore"
+
+## Passo 4: Disparar o Build
+
+Após fazer o push de todos os arquivos, o build vai começar automaticamente.
+
+### 4.1 Verificar o Build
+
+1. No repositório, clique na aba **Actions**
+2. Você verá o workflow "Build Android APK" rodando
+3. O build leva de 10-20 minutos (primeira vez é mais lento)
+
+### 4.2 Baixar o APK
+
+1. Quando o build terminar, clique no workflow
+2. Role até a seção **Artifacts**
+3. Clique em `bittuner-apk`
+4. O arquivo `.apk` será baixado
+
+## Passo 5: Instalar no Android
+
+1. Transfira o APK para o celular
+2. Ative "Instalação de apps desconhecidos"
+3. Instale o APK
+
+## Atualizações Automáticas
+
+Toda vez que você fizer push no GitHub, um novo APK será gerado automaticamente.
+
+## Disparar Build Manualmente
+
+Se quiser fazer um novo build sem mudar código:
+
+1. Vá em **Actions**
+2. Clique em "Build Android APK"
+3. Clique em **"Run workflow"**
+4. Clique em **"Run workflow"** novamente
+
+## Solução de Problemas
+
+### Build falhou
+
+1. Clique no workflow com erro
+2. Veja os logs para identificar o problema
+3. Corrija o código e faça um novo push
+
+### APK não aparece
+
+1. Verifique se o build completou com sucesso
+2. Aguarde alguns minutos após o build completar
+3. Verifique a seção Artifacts
+
+### Build muito lento
+
+O primeiro build demora mais (15-20 minutos) porque precisa baixar dependências. Builds subsequentes são mais rápidos (5-10 minutos).
+
+## Vantagens
+
+- ✅ Sem WSL necessário
+- ✅ Build automático
+- ✅ Histórico de versões
+- ✅ Gratuito para repositórios públicos
+- ✅ Download fácil via GitHub
+
+## URL Final
+
+Seu APK estará disponível em:
+`https://github.com/SEU-USUARIO/bittuner/actions`
