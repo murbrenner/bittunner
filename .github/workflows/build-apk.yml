@@ -36,7 +36,7 @@ jobs:
     
     - name: Install buildozer dependencies
       run: |
-        sudo apt-get install -y automake libtool libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+        sudo apt-get install -y automake libtool libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev
         sudo apt-get install -y libopenjp2-7 libtiff5 liblcms2-2 libwebp5 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0
     
     - name: Initialize buildozer
