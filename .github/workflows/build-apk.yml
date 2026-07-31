@@ -68,6 +68,12 @@ jobs:
         log_level = 2
         EOF
     
+    - name: Accept Android SDK licenses
+      run: |
+        mkdir -p ~/.android
+        echo "y" | sdkmanager --licenses || true
+        yes | sdkmanager --licenses || true
+    
     - name: Build APK
       run: |
         buildozer android debug
