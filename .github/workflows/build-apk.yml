@@ -71,14 +71,22 @@ jobs:
     - name: Build APK
       run: |
         buildozer android debug
-      continue-on-error: true
+    
+    - name: List build output
+      run: |
+        ls -la
+        ls -la bin/ || echo "bin directory not found"
+        find . -name "*.apk" || echo "No APK files found"
     
     - name: Upload APK artifacts
       uses: actions/upload-artifact@v4
       with:
         name: bittuner-apk
-        path: bin/*.apk
+        path: |
+          bin/*.apk
+          *.apk
         retention-days: 30
+        if-no-files-found: warn
     
     - name: Create Release
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
